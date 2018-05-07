@@ -66,6 +66,7 @@ pub struct DataLoader {
     scores: Vec<f32>,
     relative_scores: Vec<f32>,
 
+    loss_estimate: f32,
     load_performance: PerformanceMonitor,
     scores_performance: PerformanceMonitor
 }
@@ -117,6 +118,7 @@ impl DataLoader {
             scores: scores,
             relative_scores: relative_scores,
 
+            loss_estimate: 1.0,
             load_performance: PerformanceMonitor::new(),
             scores_performance: PerformanceMonitor::new(),
         }
@@ -253,7 +255,7 @@ impl DataLoader {
         self.load_performance.update(self._curr_batch.len());
         self.load_performance.pause();
         let (since_last_check, _, _, speed) = self.load_performance.get_performance();
-        if since_last_check >= 10 {
+        if since_last_check >= 120 {
             debug!("loader-loading-speed, {}, {:?}, {}", self.name, self.format, speed);
             self.load_performance.reset_last_check();
         }
@@ -288,8 +290,14 @@ impl DataLoader {
         self.scores_performance.update(tail - head);
         self.scores_performance.pause();
         let (since_last_check, _, _, speed) = self.scores_performance.get_performance();
+
+        let rou = 1.0 / self.num_batch as f32;
+        let new_avg: f32 = get_weights(&self._curr_batch, &self.relative_scores).iter().sum() /
+                           (self._curr_batch.len() as f32);
+        self.loss_estimate = self.loss_estimate * (1.0 - rou) + new_avg * rou;
+
         if since_last_check >= 10 {
-            debug!("loader-scoring-speed, {}, {:?}, {}", self.name, self.format, speed);
+            debug!("loader-scoring-stats, {}, {:?}, {}, {}", self.name, self.format, speed, self.loss_estimate);
             self.scores_performance.reset_last_check();
         }
     }
