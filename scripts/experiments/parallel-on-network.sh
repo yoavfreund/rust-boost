@@ -36,19 +36,18 @@ for i in `seq 1 $NUM_NODES`; do
     echo
     echo "===== Building $url ====="
 
-    scp -o StrictHostKeyChecking=no -i $IDENT_FILE $BASE_DIR/rust-boost/config.json ubuntu@$url:$BASE_DIR/rust-boost/config.json
     ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "
         $SETUP_COMMAND;
         cd $BASE_DIR/rust-boost && git checkout -- . && git fetch --all &&
-        git checkout $GIT_BRANCH && git pull;
+        git checkout $GIT_BRANCH && git pull;"
+    scp -o StrictHostKeyChecking=no -i $IDENT_FILE $BASE_DIR/rust-boost/config.json ubuntu@$url:$BASE_DIR/rust-boost/config.json
+    ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "
         cargo build --release 2> /dev/null 1>&2 < /dev/null &"
     echo
 done
 
 ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "
-    $SETUP_COMMAND;
-    cd $BASE_DIR/rust-boost && git checkout -- . && git fetch --all &&
-    git checkout $GIT_BRANCH && git pull;
+    cd $BASE_DIR/rust-boost;
     cargo build --release"
 
 for i in `seq 1 $NUM_NODES`; do
