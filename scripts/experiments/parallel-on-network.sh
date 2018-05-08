@@ -55,7 +55,11 @@ for i in `seq 1 $NUM_NODES`; do
     NAME="Node-$i"
     BEGI=$((i * WORK_LOAD - WORK_LOAD))
     FINI=$((i * WORK_LOAD))
-    if [ "$i" == "$NUM_NODES" ]; then
+    if [ "$BEGI" -ge "$FEATURES" ]; then
+        BEGI=$((FEATURES - BEGI + FEATURES - 1))
+        FINI=$((BEGI + WORK_LOAD))
+    fi
+    if [ "$FINI" -gt "$FEATURES" ]; then
         FINI=$FEATURES
     fi
 
