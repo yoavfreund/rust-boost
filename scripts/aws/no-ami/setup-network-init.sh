@@ -34,7 +34,7 @@ if [ $1 = "init" ]; then
         echo "===== Initializing $url ====="
         echo
 
-        if ssh -o StrictHostKeyChecking=no -i $IDENT_FILE $url test -f /mnt/init-done.txt \> /dev/null 2\>\&1
+        if ssh -o StrictHostKeyChecking=no -i $IDENT_FILE $url test -f /home/ubuntu/init-done.txt \> /dev/null 2\>\&1
         then
             echo "The node has been initialized. Skipped."
         else
@@ -45,7 +45,7 @@ if [ $1 = "init" ]; then
             # Execute init script
             ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "bash ~/init.sh > /dev/null 2>&1 < /dev/null &"
 
-            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url touch /mnt/init-done.txt
+            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url touch /home/ubuntu/init-done.txt
             echo "Initialization is started."
         fi
     done
