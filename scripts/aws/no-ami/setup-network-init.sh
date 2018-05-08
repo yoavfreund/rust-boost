@@ -12,8 +12,6 @@ fi
 
 BASE_DIR="/mnt"
 export INIT_SCRIPT=$BASE_DIR/rust-boost/scripts/aws/no-ami/init-two_ssd-s3.sh
-export GIT_REPO="https://github.com/arapat/rust-boost.git"
-export GIT_BRANCH="aws-scale"
 
 readarray -t nodes < $BASE_DIR/neighbors.txt
 
