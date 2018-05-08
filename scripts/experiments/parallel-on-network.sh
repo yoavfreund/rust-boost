@@ -2,7 +2,7 @@ ITERATION=$1
 FEATURES=564
 BASE_DIR="/mnt"
 GIT_BRANCH="aws-scale"
-readarray -t nodes < $BASE_DIR/neighbors.txt
+readarray -t nodes < /home/ubuntu/neighbors.txt
 
 NUM_NODES=${#nodes[@]}
 WORK_LOAD=$((($FEATURES+$NUM_NODES-1)/$NUM_NODES))
