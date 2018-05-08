@@ -1,8 +1,8 @@
-DOWNLOAD_PATH="/hdd/nips/may-04/100-node"
+DOWNLOAD_PATH="/hdd/nips/may-08/1-node"
 IDENT="~/Dropbox/documents/vault/aws/jalafate-dropbox.pem"
-LOG_PATH="~/rust-boost/*.log"
-MODEL_PATH="~/rust-boost/model*.json"
-PICKLE_PATH="~/rust-boost/*.pkl"
+LOG_PATH="/mnt/rust-boost/*.log"
+MODEL_PATH="/mnt/rust-boost/model*.json"
+PICKLE_PATH="/mnt/rust-boost/*.pkl"
 
 
 readarray -t nodes < ./neighbors.txt
