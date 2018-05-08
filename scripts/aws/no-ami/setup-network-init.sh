@@ -43,7 +43,7 @@ if [ $1 = "init" ]; then
             scp -o StrictHostKeyChecking=no -i $IDENT_FILE $AWS_KEY_FILE ubuntu@$url:$AWS_KEY_FILE
 
             # Execute init script
-            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "bash ~/init.sh > /dev/null 2>&1 < /dev/null &"
+            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "bash ~/init.sh > /home/ubuntu/setup.log 2>&1 < /dev/null &"
 
             ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url touch /home/ubuntu/init-done.txt
             echo "Initialization is started."
