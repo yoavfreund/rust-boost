@@ -7,7 +7,7 @@ yes | sudo mkfs.ext4 -L MY_RAID /dev/md0
 sudo mount LABEL=MY_RAID /mnt
 sudo chown -R ubuntu /mnt
 
-yes | sudo apt-get install awscli
+sudo apt-get install -y awscli
 
 cd /mnt
 aws s3 cp s3://ucsd-data/splice/testing.bin .
