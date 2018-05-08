@@ -1,5 +1,5 @@
-BASE_DIR="/home/ubuntu"
-readarray -t nodes < $BASE_DIR/neighbors.txt
+BASE_DIR="/mnt"
+readarray -t nodes < /home/ubuntu/neighbors.txt
 
 export INIT_SCRIPT="/mnt/rust-boost/scripts/aws/init-c3_xlarge-ubuntu.sh"
 export IDENT_FILE="~/jalafate-dropbox.pem"
