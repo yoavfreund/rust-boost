@@ -1,10 +1,7 @@
-nodes=(
-)
+BASE_DIR="/home/ubuntu"
+readarray -t nodes < $BASE_DIR/neighbors.txt
 
-export INIT_SCRIPT="/mnt/rust-boost/scripts/aws/init-c3_xlarge-ubuntu.sh"
 export IDENT_FILE="~/jalafate-dropbox.pem"
-export GIT_REPO="https://github.com/arapat/rust-boost.git"
-export GIT_BRANCH="aws"
 
 for i in "${!nodes[@]}";
 do

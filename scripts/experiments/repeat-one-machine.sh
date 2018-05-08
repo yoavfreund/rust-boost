@@ -1,11 +1,12 @@
 ITERATION=$1
 FEATURES=564
-BASE_DIR="/home/ubuntu"
-readarray -t nodes < $BASE_DIR/neighbors.txt
+BASE_DIR="/mnt"
+GIT_BRANCH="aws-scale"
+readarray -t nodes < /home/ubuntu/neighbors.txt
 
 NUM_NODES=${#nodes[@]}
 
-IDENT_FILE=$BASE_DIR/jalafate-dropbox.pem
+IDENT_FILE=/home/ubuntu/jalafate-dropbox.pem
 
 if [[ $# -eq 0 ]] ; then
     echo "Please provide the number of iterations."
@@ -35,19 +36,18 @@ for i in `seq 1 $NUM_NODES`; do
     echo
     echo "===== Building $url ====="
 
-    scp -o StrictHostKeyChecking=no -i $IDENT_FILE $BASE_DIR/rust-boost/config.json ubuntu@$url:$BASE_DIR/rust-boost/config.json
     ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "
         $SETUP_COMMAND;
         cd $BASE_DIR/rust-boost && git checkout -- . && git fetch --all &&
-        git checkout $GIT_BRANCH && git pull;
+        git checkout $GIT_BRANCH && git pull;"
+    scp -o StrictHostKeyChecking=no -i $IDENT_FILE $BASE_DIR/rust-boost/config.json ubuntu@$url:$BASE_DIR/rust-boost/config.json
+    ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "
         cargo build --release 2> run-network.log 1>&2 < /dev/null &"
     echo
 done
 
 ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "
-    $SETUP_COMMAND;
-    cd $BASE_DIR/rust-boost && git checkout -- . && git fetch --all &&
-    git checkout $GIT_BRANCH && git pull;
+    cd $BASE_DIR/rust-boost;
     cargo build --release"
 
 for i in `seq 1 $NUM_NODES`; do
