@@ -40,6 +40,7 @@ if [ $1 = "init" ]; then
         else
             # Copy init script
             scp -o StrictHostKeyChecking=no -i $IDENT_FILE $INIT_SCRIPT ubuntu@$url:~/init.sh
+            scp -o StrictHostKeyChecking=no -i $IDENT_FILE $AWS_KEY_FILE ubuntu@$url:$AWS_KEY_FILE
 
             # Execute init script
             ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "bash ~/init.sh > /dev/null 2>&1 < /dev/null &"
