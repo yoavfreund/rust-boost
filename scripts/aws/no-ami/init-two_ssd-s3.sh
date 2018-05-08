@@ -3,7 +3,7 @@ export GIT_BRANCH="aws-scale"
 
 sudo umount /mnt
 yes | sudo mdadm --create --verbose /dev/md0 --level=0 --name=MY_RAID --raid-devices=2 /dev/xvdb /dev/xvdc
-sudo mkfs.ext4 -L MY_RAID /dev/md0
+yes | sudo mkfs.ext4 -L MY_RAID /dev/md0
 sudo mount LABEL=MY_RAID /mnt
 sudo chown -R ubuntu /mnt
 
