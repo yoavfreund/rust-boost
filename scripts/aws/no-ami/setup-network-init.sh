@@ -1,10 +1,21 @@
-nodes=(
-)
+IDENT_FILE=/home/ubuntu/jalafate-dropbox.pem
+AWS_KEY_FILE=/home/ubuntu/awskey.sh
 
-export INIT_SCRIPT="/mnt/rust-boost/scripts/aws/init-two_ssd.sh"
-export IDENT_FILE="~/jalafate-dropbox.pem"
+if [ ! -f $IDENT_FILE ]; then
+    echo "Identification file not found!"
+    exit 1
+fi
+if [ ! -f $AWS_KEY_FILE ]; then
+    echo "AWS credential file not found!"
+    exit 1
+fi
+
+BASE_DIR="/mnt"
+export INIT_SCRIPT=$BASE_DIR/rust-boost/scripts/aws/no-ami/init-two_ssd-s3.sh
 export GIT_REPO="https://github.com/arapat/rust-boost.git"
 export GIT_BRANCH="aws-scale"
+
+readarray -t nodes < $BASE_DIR/neighbors.txt
 
 if [ $1 = "init" ]; then
     echo "Initialize all computers. Are you sure? (y/N)"
@@ -29,22 +40,14 @@ if [ $1 = "init" ]; then
             scp -o StrictHostKeyChecking=no -i $IDENT_FILE $INIT_SCRIPT ubuntu@$url:~/init.sh
 
             # Execute init script
-            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url sudo bash ~/init.sh
-
-            # Clone repository
-            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url git clone $GIT_REPO /mnt/rust-boost
-
-            # Install cargo
-            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url sudo apt-get update
-            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url sudo apt-get install -y cargo
+            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "bash ~/init.sh > /dev/null 2>&1 < /dev/null &"
 
             ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url touch /mnt/init-done.txt
-            echo "Initialization is completed."
+            echo "Initialization is started."
         fi
     done
 
     echo
     echo "Now waiting for training/testing files to be transmitted to all other computers..."
-    echo
-    wait
 fi
+
