@@ -1,5 +1,5 @@
 IDENT_FILE=/home/ubuntu/jalafate-dropbox.pem
-AWS_KEY_FILE=/home/ubuntu/awskey.sh
+AWS_KEY_FILE=/home/ubuntu/credentials
 BASE_DIR="/home/ubuntu"
 export INIT_SCRIPT=$BASE_DIR/rust-boost/scripts/aws/no-ami/init-two_ssd-s3.sh
 
@@ -40,7 +40,8 @@ if [ $1 = "init" ]; then
         else
             # Copy init script
             scp -o StrictHostKeyChecking=no -i $IDENT_FILE $INIT_SCRIPT ubuntu@$url:~/init.sh
-            scp -o StrictHostKeyChecking=no -i $IDENT_FILE $AWS_KEY_FILE ubuntu@$url:$AWS_KEY_FILE
+            ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "mkdir .aws"
+            scp -o StrictHostKeyChecking=no -i $IDENT_FILE $AWS_KEY_FILE ubuntu@$url:~/.aws/credentials
 
             # Execute init script
             ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "bash ~/init.sh > /home/ubuntu/setup.log 2>&1 < /dev/null &"

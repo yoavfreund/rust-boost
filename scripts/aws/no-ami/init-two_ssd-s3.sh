@@ -1,4 +1,3 @@
-AWS_KEY_FILE=/home/ubuntu/awskey.sh
 export GIT_REPO="https://github.com/arapat/rust-boost.git"
 export GIT_BRANCH="aws-scale"
 
@@ -10,7 +9,6 @@ sudo chown -R ubuntu /mnt
 
 yes | sudo apt-get install awscli
 
-source $AWS_KEY_FILE
 cd /mnt
 aws s3 cp s3://ucsd-data/splice/testing.bin .
 aws s3 cp s3://ucsd-data/splice/training.bin .
