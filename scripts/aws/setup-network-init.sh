@@ -1,7 +1,7 @@
 IDENT_FILE=/home/ubuntu/jalafate-dropbox.pem
 AWS_KEY_FILE=/home/ubuntu/credentials
 BASE_DIR="/home/ubuntu"
-export INIT_SCRIPT=$BASE_DIR/rust-boost/scripts/aws/no-ami/init-two_ssd-s3.sh
+export INIT_SCRIPT=$BASE_DIR/rust-boost/scripts/aws/init-two_ssd-s3.sh
 
 if [ ! -f $IDENT_FILE ]; then
     echo "Identification file not found!"
