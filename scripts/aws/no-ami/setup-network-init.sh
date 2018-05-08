@@ -1,5 +1,7 @@
 IDENT_FILE=/home/ubuntu/jalafate-dropbox.pem
 AWS_KEY_FILE=/home/ubuntu/awskey.sh
+BASE_DIR="/home/ubuntu"
+export INIT_SCRIPT=$BASE_DIR/rust-boost/scripts/aws/no-ami/init-two_ssd-s3.sh
 
 if [ ! -f $IDENT_FILE ]; then
     echo "Identification file not found!"
@@ -9,9 +11,11 @@ if [ ! -f $AWS_KEY_FILE ]; then
     echo "AWS credential file not found!"
     exit 1
 fi
+if [ ! -f $BASE_DIR/neighbors.txt ]; then
+    echo "Neighbors list file not found!"
+    exit 1
+fi
 
-BASE_DIR="/mnt"
-export INIT_SCRIPT=$BASE_DIR/rust-boost/scripts/aws/no-ami/init-two_ssd-s3.sh
 
 readarray -t nodes < $BASE_DIR/neighbors.txt
 
