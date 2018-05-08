@@ -1,7 +1,7 @@
-BASE_DIR="/home/ubuntu"
-IDENT_FILE="$BASE_DIR/jalafate-dropbox.pem"
+BASE_DIR="/mnt"
+IDENT_FILE="/home/ubuntu/jalafate-dropbox.pem"
 
-readarray -t nodes < $BASE_DIR/neighbors.txt
+readarray -t nodes < /home/ubuntu/neighbors.txt
 
 echo "Start running pandas?"
 read enter
@@ -17,8 +17,8 @@ do
     ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url \
     "(sudo apt-get install -y python3-pip;
       sudo pip3 install pandas;
-      cd $BASE_DIR/rust-boost; git pull; cd $BASE_DIR;
-      python3 rust-boost/notebooks/python/gen-pandas.py $i) 2> /dev/null 1>&2 < /dev/null &"
+      cd $BASE_DIR/rust-boost;
+      python3 notebooks/python/gen-pandas.py $i) 2> /dev/null 1>&2 < /dev/null &"
 
     echo
 done

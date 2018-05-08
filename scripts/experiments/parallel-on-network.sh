@@ -1,6 +1,7 @@
 ITERATION=$1
 FEATURES=564
 BASE_DIR="/home/ubuntu"
+GIT_BRANCH="aws-scale"
 readarray -t nodes < $BASE_DIR/neighbors.txt
 
 NUM_NODES=${#nodes[@]}
