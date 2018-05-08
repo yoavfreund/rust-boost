@@ -254,6 +254,7 @@ impl<'a> Boosting<'a> {
                 self.sum_gamma = max_score;
                 self.prev_sum_gamma = self.sum_gamma;
                 self.learner.reset();
+                self.training_loader_stack.iter_mut().for_each(|t| t.reset_scores());
                 debug!("model-replaced, {}, {}, {}, {}",
                        self.sum_gamma, old_model_score, self.model.len(), old_model_size);
             } else {
@@ -277,7 +278,7 @@ impl<'a> Boosting<'a> {
     }
 
     fn handle_persistent(&mut self) {
-        if self.model.len() - self.last_backup >= 100 {
+        if self.model.len() - self.last_backup >= 90 {
             let json = serde_json::to_string(&self.model).expect(
                 "Local model cannot be serialized."
             );
