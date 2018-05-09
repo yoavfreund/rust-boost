@@ -298,8 +298,11 @@ impl DataLoader {
         // adaboost
         // let mut new_avg: f32 = get_weights(&self._curr_batch, &self.relative_scores).iter().sum();
         // logitboost
-        let mut new_avg: f32 = get_weights(&self._curr_batch, &self.relative_scores).iter()
-                                    .map(|t| (1.0 / t).ln()).sum();
+        let mut new_avg: f32 = (
+            self.relative_scores.iter().zip(
+                self._curr_batch.iter().map(|t| get_symmetric_label(t))
+            ).map(|(score, label)| (1.0 + (-score * label).exp()).ln())
+        ).sum();
         new_avg = new_avg / (self._curr_batch.len() as f32);
         self.loss_estimate = (self.loss_estimate * (1.0 - rou) + new_avg * rou) * self.loss_estimate_factor;
 
