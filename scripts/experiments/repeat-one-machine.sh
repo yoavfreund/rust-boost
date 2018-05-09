@@ -46,9 +46,9 @@ for i in `seq 1 $NUM_NODES`; do
     echo
 done
 
-ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "
-    cd $BASE_DIR/rust-boost;
-    cargo build --release"
+# ssh -o StrictHostKeyChecking=no -i $IDENT_FILE ubuntu@$url "
+#     cd $BASE_DIR/rust-boost;
+#     cargo build --release"
 
 for i in `seq 1 $NUM_NODES`; do
     NAME="Node-$i"
