@@ -36,6 +36,7 @@ pub struct Boosting<'a> {
     learner: Learner,
     model: Model,
     last_backup: usize,
+    last_sent: usize,
 
     sender: Option<Sender<ModelScore>>,
     receiver: Option<Receiver<ModelScore>>,
@@ -74,6 +75,7 @@ impl<'a> Boosting<'a> {
             learner: learner,
             model: model,
             last_backup: 0,
+            last_sent: 0,
 
             sender: None,
             receiver: None,
@@ -262,7 +264,7 @@ impl<'a> Boosting<'a> {
             }
 
             // handle sending
-            if self.sum_gamma > self.prev_sum_gamma {
+            if self.sum_gamma > self.prev_sum_gamma && self.model.len() - self.last_sent >= 5 {
                 let send_result = self.sender.as_ref().unwrap()
                                       .send((self.model.clone(), self.sum_gamma));
                 if let Err(err) = send_result {
@@ -272,6 +274,7 @@ impl<'a> Boosting<'a> {
                     info!("Sent the local model to the network module, {}, {}",
                           self.prev_sum_gamma, self.sum_gamma);
                     self.prev_sum_gamma = self.sum_gamma;
+                    self.last_sent = self.model.len();
                 }
             }
         }
