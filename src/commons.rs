@@ -28,7 +28,7 @@ const ALMOST_ZERO: f32 = 1e-8;
 pub fn get_weight(data: &Example, score: f32) -> f32 {
     // min(1.0, (-score * get_symmetric_label(data)).exp())
     // (-score * get_symmetric_label(data)).exp()
-    1.0 / (1.0 + (-score * get_symmetric_label(data)).exp())
+    1.0 / (1.0 + (score * get_symmetric_label(data)).exp())
 }
 
 pub fn get_weights(data: &Vec<Example>, scores: &[f32]) -> Vec<f32> {
