@@ -76,7 +76,7 @@ pub struct DataLoader {
 impl DataLoader {
     fn new(name: String, filename: String, examples: Option<Examples>,
            size: usize, feature_size: usize, batch_size: usize,
-           format: Format, bytes_per_example: usize, loss_estimate_factor: f32,
+           format: Format, bytes_per_example: usize, loss_estimate: f32, loss_estimate_factor: f32,
            base_node: usize, scores: Vec<f32>) -> DataLoader {
         assert!(batch_size <= size);
         let num_batch = size / batch_size + ((size % batch_size > 0) as usize);
@@ -119,7 +119,7 @@ impl DataLoader {
             scores: scores,
             relative_scores: relative_scores,
 
-            loss_estimate: loss_estimate_factor,
+            loss_estimate: loss_estimate,
             loss_estimate_factor: loss_estimate_factor,
             load_performance: PerformanceMonitor::new(),
             scores_performance: PerformanceMonitor::new(),
@@ -130,7 +130,7 @@ impl DataLoader {
                         batch_size: usize, format: Format, bytes_per_example: usize) -> DataLoader {
         assert!(format != Format::InMemory);
         let mut ret = DataLoader::new(name, filename, None, size, feature_size, batch_size,
-                                      format, bytes_per_example, 1.0, 0, vec![0.0; size]);
+                                      format, bytes_per_example, 1.0, 1.0 / (size as f32), 0, vec![0.0; size]);
         if ret.format == Format::Text {
             ret.binary_constructor = Some(Constructor::new(size, false));
         }
@@ -139,8 +139,8 @@ impl DataLoader {
 
     pub fn from_constructor(&self, name: String, constructor: Constructor,
                             base_node: usize) -> DataLoader {
-        let (filename, some_examples, mut scores, size, bytes_per_example)
-                :(String, Option<Examples>, Vec<f32>, usize, usize) = constructor.get_content();
+        let (filename, some_examples, mut scores, size, bytes_per_example, loss_estimate_factor)
+                :(String, Option<Examples>, Vec<f32>, usize, usize, f32) = constructor.get_content();
         assert!(some_examples.is_some());
         scores.shrink_to_fit();
         let mut examples = some_examples.unwrap();
@@ -155,6 +155,7 @@ impl DataLoader {
             Format::InMemory,
             bytes_per_example,
             self.loss_estimate,
+            loss_estimate_factor,
             base_node,
             scores
         )
@@ -298,13 +299,13 @@ impl DataLoader {
         // adaboost
         // let mut new_avg: f32 = get_weights(&self._curr_batch, &self.relative_scores).iter().sum();
         // logitboost
-        let mut new_avg: f32 = (
+        let new_avg: f32 = (
             self.relative_scores.iter().zip(
                 self._curr_batch.iter().map(|t| get_symmetric_label(t))
             ).map(|(score, label)| (1.0 + (-score * label).exp()).ln())
         ).sum();
-        new_avg = new_avg / (self._curr_batch.len() as f32) * self.loss_estimate_factor;
-        self.loss_estimate = self.loss_estimate * (1.0 - rou) + new_avg * rou;
+        let adjusted_avg = new_avg * self.loss_estimate_factor;
+        self.loss_estimate = self.loss_estimate * (1.0 - rou) + adjusted_avg * rou;
 
         if since_last_check >= 10 {
             debug!("loader-scoring-stats, {}, {:?}, {}, {}", self.name, self.format, speed, self.loss_estimate);

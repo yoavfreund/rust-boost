@@ -6,6 +6,7 @@ use std::io::BufWriter;
 
 use commons::Example;
 use commons::get_symmetric_label;
+use commons::get_weight;
 use commons::is_positive;
 use super::io::create_bufwriter;
 use super::io::write_to_binary_file;
@@ -17,6 +18,7 @@ pub struct Constructor {
     filename: String,
     examples: Option<Examples>,
     scores: Vec<f32>,
+    loss_estimate_factor_inv: f32,
     size: usize,
 
     bytes_per_example: usize,
@@ -42,6 +44,7 @@ impl Constructor {
             filename: filename,
             examples: examples,
             scores: Vec::with_capacity(capacity),
+            loss_estimate_factor_inv: 0.0,
             size: 0,
 
             bytes_per_example: 0,
@@ -77,15 +80,18 @@ impl Constructor {
             self.num_negative += 1;
         }
         self.scores.push(score);
+        let w = get_weight(data, score);
+        self.loss_estimate_factor_inv += 1.0 / w;
         self.size += 1;
     }
 
-    pub fn get_content(mut self) -> (String, Option<Examples>, Vec<f32>, usize, usize) {
+    pub fn get_content(mut self) -> (String, Option<Examples>, Vec<f32>, usize, usize, f32) {
         debug!("constructor-consumed, {}, {}", self.num_positive, self.num_negative);
         if let Some(ref mut examples) = self.examples {
             examples.shuffle();
         }
-        (self.filename, self.examples, self.scores, self.size, self.bytes_per_example)
+        (self.filename, self.examples, self.scores, self.size, self.bytes_per_example,
+         1.0 / self.loss_estimate_factor_inv)
     }
 
     pub fn get_filename(&self) -> String {
