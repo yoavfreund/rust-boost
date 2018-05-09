@@ -32,10 +32,26 @@ pub fn validate(
               .collect()
 }
 
+#[allow(dead_code)]
 pub fn get_adaboost_loss(scores_labels: &Vec<(f32, f32)>) -> f32 {
     let loss: f32 = scores_labels.par_iter()
-                                 .map(|&(score, label)| min(1.0, (-score * label).exp()))
+                                 .map(|&(score, label)| {
+                                     let w = (-score * label).exp();
+                                     if w < 1.0 {
+                                         w
+                                     } else {
+                                         1.0
+                                     }
+                                 })
                                  // .map(|&(score, label)| (-score * label).exp())
+                                 .sum();
+    loss / (scores_labels.len() as f32)
+}
+
+#[allow(dead_code)]
+pub fn get_logitboost_loss(scores_labels: &Vec<(f32, f32)>) -> f32 {
+    let loss: f32 = scores_labels.par_iter()
+                                 .map(|&(score, label)| (1.0 + (-score * label).exp()).ln())
                                  .sum();
     loss / (scores_labels.len() as f32)
 }
@@ -140,12 +156,4 @@ fn get_fps_tps(sorted_scores_labels: &Vec<(f32, f32)>) -> (Vec<usize>, Vec<usize
     tps.shrink_to_fit();
     thresholds.shrink_to_fit();
     (fps, tps, thresholds)
-}
-
-fn min(a: f32, b: f32) -> f32 {
-    if a < b {
-        a
-    } else {
-        b
-    }
 }

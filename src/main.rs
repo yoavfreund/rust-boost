@@ -26,7 +26,7 @@ use std::io::Read;
 use std::io::Write;
 use time::get_time;
 
-use validator::get_adaboost_loss;
+use validator::get_logitboost_loss;
 use validator::get_auprc;
 use validator::validate;
 use data_loader::io::create_bufreader;
@@ -97,7 +97,7 @@ fn main() {
     let ess_threshold = 0.5;
     let default_rho_gamma = 0.25;
     let eval_funcs: Vec<&LossFunc> = vec![
-        &get_adaboost_loss,
+        &get_logitboost_loss,
         &get_auprc
     ];
     let max_trials_before_shrink = if training_size < 1000000 {
