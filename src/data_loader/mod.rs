@@ -67,6 +67,7 @@ pub struct DataLoader {
     relative_scores: Vec<f32>,
 
     loss_estimate: f32,
+    loss_estimate_factor: f32,
     load_performance: PerformanceMonitor,
     scores_performance: PerformanceMonitor
 }
@@ -75,8 +76,8 @@ pub struct DataLoader {
 impl DataLoader {
     fn new(name: String, filename: String, examples: Option<Examples>,
            size: usize, feature_size: usize, batch_size: usize,
-           format: Format, bytes_per_example: usize, base_node: usize,
-           scores: Vec<f32>) -> DataLoader {
+           format: Format, bytes_per_example: usize, loss_estimate_factor: f32,
+           base_node: usize, scores: Vec<f32>) -> DataLoader {
         assert!(batch_size <= size);
         let num_batch = size / batch_size + ((size % batch_size > 0) as usize);
         let relative_scores = vec![0.0; size];
@@ -119,6 +120,7 @@ impl DataLoader {
             relative_scores: relative_scores,
 
             loss_estimate: 1.0,
+            loss_estimate_factor: loss_estimate_factor,
             load_performance: PerformanceMonitor::new(),
             scores_performance: PerformanceMonitor::new(),
         }
@@ -128,7 +130,7 @@ impl DataLoader {
                         batch_size: usize, format: Format, bytes_per_example: usize) -> DataLoader {
         assert!(format != Format::InMemory);
         let mut ret = DataLoader::new(name, filename, None, size, feature_size, batch_size,
-                                      format, bytes_per_example, 0, vec![0.0; size]);
+                                      format, bytes_per_example, 1.0, 0, vec![0.0; size]);
         if ret.format == Format::Text {
             ret.binary_constructor = Some(Constructor::new(size, false));
         }
@@ -152,6 +154,7 @@ impl DataLoader {
             self.batch_size,
             Format::InMemory,
             bytes_per_example,
+            self.loss_estimate,
             base_node,
             scores
         )
@@ -298,7 +301,7 @@ impl DataLoader {
         let mut new_avg: f32 = get_weights(&self._curr_batch, &self.relative_scores).iter()
                                     .map(|t| (1.0 / t).ln()).sum();
         new_avg = new_avg / (self._curr_batch.len() as f32);
-        self.loss_estimate = self.loss_estimate * (1.0 - rou) + new_avg * rou;
+        self.loss_estimate = (self.loss_estimate * (1.0 - rou) + new_avg * rou) * self.loss_estimate_factor;
 
         if since_last_check >= 10 {
             debug!("loader-scoring-stats, {}, {:?}, {}, {}", self.name, self.format, speed, self.loss_estimate);
