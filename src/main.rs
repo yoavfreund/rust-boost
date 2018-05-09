@@ -133,14 +133,14 @@ fn main() {
             &format!("Cannot parse the JSON description of the remote model. \
                         The JSON string is `{}`.", json)
         );
-        let mut k = 1;
+        let mut k = 0;
         while k <= model.len() {
-            let k10 = k;  // if k == 0 { 1 } else { k * 10 };
+            let k10 = if k == 0 { 1 } else { k };
             let model_subset = model[0..k10].to_vec();
             let scores = validate(&mut testing_loader, &model_subset, &eval_funcs);
             let output: Vec<String> = scores.into_iter().map(|x| x.to_string()).collect();
             info!("validate-only, {}, {}", k10, output.join(", "));
-            k += 1;
+            k += 10;
         }
     } else if args[1] == "count" {
         let training_data = home_dir.clone() + "training.bin";
