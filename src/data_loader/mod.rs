@@ -303,8 +303,8 @@ impl DataLoader {
                 self._curr_batch.iter().map(|t| get_symmetric_label(t))
             ).map(|(score, label)| (1.0 + (-score * label).exp()).ln())
         ).sum();
-        new_avg = new_avg / (self._curr_batch.len() as f32);
-        self.loss_estimate = (self.loss_estimate * (1.0 - rou) + new_avg * rou) * self.loss_estimate_factor;
+        new_avg = new_avg / (self._curr_batch.len() as f32) * self.loss_estimate_factor;
+        self.loss_estimate = self.loss_estimate * (1.0 - rou) + new_avg * rou;
 
         if since_last_check >= 10 {
             debug!("loader-scoring-stats, {}, {:?}, {}, {}", self.name, self.format, speed, self.loss_estimate);
