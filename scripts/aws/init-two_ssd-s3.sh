@@ -10,8 +10,6 @@ sudo chown -R ubuntu /mnt
 sudo apt-get install -y awscli
 
 cd /mnt
-aws s3 cp s3://ucsd-data/splice/testing.bin .
-aws s3 cp s3://ucsd-data/splice/training.bin .
 
 git config --global user.name "Julaiti Alafate"
 git config --global user.email "jalafate@gmail.com"
@@ -24,3 +22,7 @@ git clone $GIT_REPO /mnt/rust-boost
 sudo apt-get update
 yes | sudo apt-get install cargo
 
+wait 5
+
+aws s3 cp s3://ucsd-data/splice/testing.bin .
+aws s3 cp s3://ucsd-data/splice/training.bin .
