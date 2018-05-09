@@ -388,6 +388,14 @@ impl DataLoader {
         ret
     }
 
+    pub fn get_loss_estimate(&self) -> f32 {
+        self.loss_estimate
+    }
+
+    pub fn set_loss_estimate(&mut self, loss_estimate: f32) {
+        self.loss_estimate = loss_estimate;
+    }
+
     fn get_estimated_interval_and_size(&mut self, trees: &Model, sample_ratio: f32,
                                        sampler_timer: &mut PerformanceMonitor) -> (f32, usize) {
         let mut sum_weights = 0.0;

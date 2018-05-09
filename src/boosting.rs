@@ -297,6 +297,8 @@ impl<'a> Boosting<'a> {
         if let Some(ess) = ess_option {
             if ess < self.ess_threshold {
                 debug!("resample for ESS too low, {}, {}", ess, self.ess_threshold);
+                let est = self.training_loader_stack[1].get_loss_estimate();
+                self.training_loader_stack[0].set_loss_estimate(est);
                 self.training_loader_stack.pop();
                 let prev_count = sampler_timer.get_performance().1;
                 self.sample(sampler_timer);
