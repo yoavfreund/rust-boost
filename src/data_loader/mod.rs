@@ -119,7 +119,7 @@ impl DataLoader {
             scores: scores,
             relative_scores: relative_scores,
 
-            loss_estimate: 1.0,
+            loss_estimate: loss_estimate_factor,
             loss_estimate_factor: loss_estimate_factor,
             load_performance: PerformanceMonitor::new(),
             scores_performance: PerformanceMonitor::new(),
