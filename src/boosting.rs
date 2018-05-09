@@ -16,7 +16,7 @@ use commons::PerformanceMonitor;
 use commons::ModelScore;
 
 use bins::create_bins;
-use commons::get_weights;
+use commons::get_weights_rel;
 use commons::get_symmetric_label;
 use commons::is_positive;
 use data_loader::io::create_bufwriter;
@@ -128,7 +128,7 @@ impl<'a> Boosting<'a> {
                 training_loader.fetch_scores(&self.model);
                 let data = training_loader.get_curr_batch();
                 let scores = training_loader.get_relative_scores();
-                let weights = get_weights(data, scores);
+                let weights = get_weights_rel(data, scores);
                 learner_timer.resume();
                 self.learner.update(data, &weights);
 

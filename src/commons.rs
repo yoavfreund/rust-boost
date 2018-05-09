@@ -38,6 +38,13 @@ pub fn get_weights(data: &Vec<Example>, scores: &[f32]) -> Vec<f32> {
         .collect()
 }
 
+pub fn get_weights_rel(data: &Vec<Example>, scores: &[(f32, f32)]) -> Vec<f32> {
+    data.par_iter()
+        .zip(scores.par_iter())
+        .map(|(d, &(s1, s2))| get_weight(&d, s2) / get_weight(&d, s1))
+        .collect()
+}
+
 #[inline]
 pub fn get_bound(sum_c: &f32, sum_c_squared: &f32) -> Option<f32> {
     // loglogv will be np.nan if conditons are not satisfied

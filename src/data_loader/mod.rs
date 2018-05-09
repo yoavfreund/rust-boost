@@ -64,7 +64,7 @@ pub struct DataLoader {
     scores_version: Vec<usize>,
     base_scores: Vec<f32>,
     scores: Vec<f32>,
-    relative_scores: Vec<f32>,
+    relative_scores: Vec<(f32, f32)>,
 
     loss_estimate: f32,
     loss_estimate_factor: f32,
@@ -80,7 +80,7 @@ impl DataLoader {
            base_node: usize, scores: Vec<f32>) -> DataLoader {
         assert!(batch_size <= size);
         let num_batch = size / batch_size + ((size % batch_size > 0) as usize);
-        let relative_scores = vec![0.0; size];
+        let relative_scores = vec![(0.0, 0.0); size];
         let reader = if format == Format::InMemory {
             Reader::MemReader(examples.unwrap())
         } else {
@@ -174,7 +174,7 @@ impl DataLoader {
         &self._curr_batch
     }
 
-    pub fn get_relative_scores(&self) -> &[f32] {
+    pub fn get_relative_scores(&self) -> &[(f32, f32)] {
         assert!(self._scores_synced);
         &self.relative_scores.as_slice()
     }
@@ -285,8 +285,9 @@ impl DataLoader {
         self.relative_scores = self.scores[head..tail]
                                    .iter()
                                    .zip(self.base_scores[head..tail].iter())
-                                   .map(|(a, b)| a - b)
+                                   .map(|(s1, s2)| (*s1, *s2))
                                    .collect();
+                                   // .map(|(a, b)| a - b)
         self.scores_version[self._curr_loc] = tree_tail;
         self._scores_synced = true;
         self.update_stats_for_ess();
@@ -302,7 +303,13 @@ impl DataLoader {
         let new_avg: f32 = (
             self.relative_scores.iter().zip(
                 self._curr_batch.iter().map(|t| get_symmetric_label(t))
-            ).map(|(score, label)| (1.0 + (-score * label).exp()).ln())
+            ).map(|(&(s1, s2), label)| {
+                let pre_margin = s1 * label;
+                let cur_margin = s2 * label;
+                let potential = (1.0 + (-cur_margin).exp()).ln();
+                let prev_weight_inv = 1.0 + pre_margin.exp();
+                potential * prev_weight_inv
+            })
         ).sum();
         let adjusted_avg = new_avg * self.loss_estimate_factor;
         self.loss_estimate = self.loss_estimate * (1.0 - rou) + adjusted_avg * rou;
@@ -321,13 +328,13 @@ impl DataLoader {
         self._curr_batch
             .iter()
             .zip(self.relative_scores.iter())
-            .for_each(|(data, score)| {
+            .for_each(|(data, &(s1, s2))| {
                 if is_positive(&get_symmetric_label(data)) {
                     num_positive += 1;
                 } else {
                     num_negative += 1;
                 }
-                let w = get_weight(data, *score);
+                let w = get_weight(data, s2) / get_weight(data, s1);
                 sum_weights += w;
                 sum_weight_squared += w * w;
             });
