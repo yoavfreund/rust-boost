@@ -285,7 +285,7 @@ impl DataLoader {
         self.relative_scores = self.scores[head..tail]
                                    .iter()
                                    .zip(self.base_scores[head..tail].iter())
-                                   .map(|(s1, s2)| (*s1, *s2))
+                                   .map(|(s1, s2)| (*s2, *s1))
                                    .collect();
                                    // .map(|(a, b)| a - b)
         self.scores_version[self._curr_loc] = tree_tail;
