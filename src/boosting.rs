@@ -140,7 +140,7 @@ impl<'a> Boosting<'a> {
 
             // if is_timeout {
             let mut new_tree = None;
-            if let &Some(ref weak_rule) = self.learner.get_new_weak_rule(is_timeout) {
+            if let &Some(ref weak_rule) = self.learner.get_new_weak_rule(false) {
                 new_tree = Some(weak_rule.create_tree());
             }
             if new_tree.is_some() {
