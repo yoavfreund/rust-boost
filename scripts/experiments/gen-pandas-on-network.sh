@@ -4,7 +4,9 @@ IDENT_FILE="/home/ubuntu/jalafate-dropbox.pem"
 readarray -t nodes < /home/ubuntu/neighbors.txt
 
 echo "Start running pandas?"
-read enter
+if [ "$#" -ne 1 ]; then
+    read enter
+fi
 
 for i in "${!nodes[@]}";
 do
