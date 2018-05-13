@@ -169,7 +169,11 @@ impl<'a> Boosting<'a> {
                 }
             }
 
-            if self.handle_network() {
+            let handle_network_ret = self.handle_network();
+            if handle_network_ret.is_some() {
+                let (old_model_size, old_model_score): (usize, f32) = handle_network_ret.unwrap();
+                debug!("model-replaced, {}, {}, {}, {}",
+                       self.sum_gamma, old_model_score, self.model.len(), old_model_size);
                 model_ts = global_timer.get_duration();
             }
             if model_ts - self.last_backup_time >= 5.0 {
@@ -200,8 +204,8 @@ impl<'a> Boosting<'a> {
         }
     }
 
-    fn handle_network(&mut self) -> bool {
-        let mut replaced = false;
+    fn handle_network(&mut self) -> Option<(usize, f32)> {
+        let mut ret = None;
         if self.receiver.is_some() {
             // info!("Processing models received from the network");
             // handle receiving
@@ -217,15 +221,14 @@ impl<'a> Boosting<'a> {
                 }
             }
             if max_score > self.sum_gamma {
-                let old_model_size = self.model.len();
-                let old_model_score = self.sum_gamma;
-                self.model = best_model.unwrap();  // safe
+                ret = Some((self.model.len(), self.sum_gamma));
+                let new_model = best_model.unwrap();  // safe
+                // TODO: adjust score should also be done for stack[0]
+                self.training_loader_stack[1].adjust_scores(&self.model, &new_model);
+                self.model = new_model;
                 self.sum_gamma = max_score;
                 self.prev_sum_gamma = self.sum_gamma;
                 self.learner.reset();
-                replaced = true;
-                debug!("model-replaced, {}, {}, {}, {}",
-                       self.sum_gamma, old_model_score, self.model.len(), old_model_size);
             } else {
                 // info!("Remote models are not better. Skipped.");
             }
@@ -244,7 +247,7 @@ impl<'a> Boosting<'a> {
                 }
             }
         }
-        replaced
+        ret
     }
 
     fn handle_persistent(&mut self, ts: f32) {

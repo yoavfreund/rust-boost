@@ -392,7 +392,6 @@ impl DataLoader {
         let mut max_weight = 0.0;
         let mut num_scanned = 0;
         while num_scanned <= 500000 {
-        // for _ in 0..self.num_batch {
             self.fetch_next_batch();
             self.fetch_scores(trees);
             let data = self.get_curr_batch();
@@ -414,6 +413,37 @@ impl DataLoader {
         debug!("sample-estimate, {}, {}, {}, {}, {}",
                num_scanned, sum_weights, interval, max_weight, max_repeat);
         (interval, (sample_ratio * self.size as f32) as usize)
+    }
+
+    pub fn adjust_scores(&mut self, old_model: &Model, new_model: &Model) {
+        let model_size = if old_model.len() < new_model.len() {
+            old_model.len()
+        } else {
+            new_model.len()
+        };
+        let mut common_length = 0;
+        while common_length < model_size {
+            if old_model[common_length] != new_model[common_length] {
+                break;
+            }
+            common_length += 1;
+        }
+
+        for _ in 0..self.num_batch {
+            self.fetch_next_batch();
+            let cur_version = self.scores_version[self._curr_loc];
+            if cur_version > common_length {
+                let head = self._curr_loc * self.batch_size;
+                let tail = head + self._curr_batch.len();
+                {
+                    let scores_region = &mut self.scores[head..tail];
+                    for tree in old_model[common_length..cur_version].iter() {
+                        tree.subtract_prediction_from_score(&self._curr_batch, scores_region)
+                    }
+                }
+                self.scores_version[self._curr_loc] = common_length;
+            }
+        }
     }
 
     pub fn reset_scores(&mut self) {
