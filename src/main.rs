@@ -155,10 +155,10 @@ fn main() {
             if old_model.is_some() {
                 in_memory_testing_loader.adjust_scores(&(old_model.unwrap()), &model);
             }
-            old_model = Some(model);
             let scores = validate(&mut in_memory_testing_loader, &model, &eval_funcs);
             let output: Vec<String> = scores.into_iter().map(|x| x.to_string()).collect();
             info!("validate-only, {}, {}, {}", model.len(), ts, output.join(", "));
+            old_model = Some(model);
             // if args[2] == "reset" {
             //     in_memory_testing_loader.reset_scores();
             // }
