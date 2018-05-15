@@ -24,5 +24,7 @@ yes | sudo apt-get install cargo
 
 wait 5
 
+mkdir ~/.aws
+cp ~/credentials ~/.aws/
 aws s3 cp s3://ucsd-data/splice/testing.bin .
 aws s3 cp s3://ucsd-data/splice/training.bin .
